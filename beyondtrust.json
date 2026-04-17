@@ -139,6 +139,18 @@
                     "data_type": "string"
                 },
                 {
+                    "data_path": "action_result.parameter.enabled_only",
+                    "data_type": "boolean"
+                },
+                {
+                    "data_path": "action_result.parameter.inactive_only",
+                    "data_type": "boolean"
+                },
+                {
+                    "data_path": "action_result.parameter.max_inactive_days",
+                    "data_type": "numeric"
+                },
+                {
                     "data_path": "action_result.data.*.username",
                     "data_type": "string",
                     "column_order": 0,
