@@ -90,8 +90,6 @@ class BeyondtrustConnector(BaseConnector):
         if phantom.is_fail(ret_val):
             return action_result.get_status()
 
-
-        self._state[BT_TOKEN_STRING] = resp_json[BT_EP_REST_RESPONSE]
         self._access_token = resp_json[BT_EP_REST_RESPONSE].get(BT_ACCESS_TOKEN_STRING, None)
 
         return phantom.APP_SUCCESS
