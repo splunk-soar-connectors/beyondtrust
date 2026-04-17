@@ -269,7 +269,7 @@ class BeyondtrustConnector(BaseConnector):
 
             headers.update({"Authorization": f"Bearer {self._access_token}"})
 
-            ret_val, resp_json = self._make_rest_call(url, action_result, verify, headers, params, data, json, method)
+            ret_val, resp_json = self._make_rest_call(endpoint, action_result, headers, params, data, json, method)
 
         if phantom.is_fail(ret_val):
             return RetVal(ret_val, resp_json)
