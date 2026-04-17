@@ -1,0 +1,47 @@
+
+  <h2 id="auth">Authentication</h2>
+  <h3 id="beyondtrust-api">BeyondTrust API</h3>
+  <p>To use the BeyondTrust API, ensure that the <b>Enable XML API</b> option is checked on the <b>Management > API
+    Configuration</b> page of the <b>/login</b> administrative interface.
+  </p>
+  <h3 id="authenticate-api">Authenticate to the API</h3>
+  <p>
+    BeyondTrust's web APIs use OAuth as the authentication method.
+  </p>
+  <p>
+    To authenticate to the API:
+    <ul>
+      <li>Create an API account on the <b>/login > Management > API Configuration</b> page</li>
+      <li>The account must have <b>permission to access the Configuration API</b></li>
+    </ul>
+  </p>
+  <p>
+    API requests require a tocken to first be created and then be submitted with each API request as HTTP authorization header.
+  </p>
+  <h4 id="rate-limits">Rate Limits</h4>
+  <p>
+    Requests are limited to 20 per second and 15,000 per hour. This limit applies to all API endpoints, and is per API account.
+  </p>
+  <h2 id="port-details">Port Details</h2>
+  <p>
+    The app uses HTTP/ HTTPS protocol for communicating with the BeyondTrust server. Below are the
+    default ports used by the Splunk SOAR Connector.
+
+    <table>
+      <thead>
+        <tr>
+          <td>Service Name</td>
+          <td>Transport Protocol</td>
+          <td>Port</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>https</td>
+          <td>tcp</td>
+          <td>443</td>
+        </tr>
+      </tbody>
+    </table>
+  </p>
+
