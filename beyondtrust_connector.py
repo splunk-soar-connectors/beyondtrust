@@ -1,6 +1,6 @@
 # File: beyondtrust_connector.py
 #
-# Copyright (c) 2025 Splunk Inc.
+# Copyright (c) 2025-2026 Splunk Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,12 +13,12 @@
 # either express or implied. See the License for the specific language governing permissions
 # and limitations under the License.
 
+import json
+from datetime import datetime, timezone
+
 import phantom.app as phantom
 import requests
-import json
-import base64
 from bs4 import BeautifulSoup
-from datetime import datetime, timezone
 from phantom.action_result import ActionResult
 from phantom.base_connector import BaseConnector
 
@@ -26,9 +26,9 @@ from beyondtrust_consts import *
 
 
 class RetVal(tuple):
-
     def __new__(cls, val1, val2=None):
         return tuple.__new__(RetVal, (val1, val2))
+
 
 class BeyondtrustConnector(BaseConnector):
     """
@@ -36,7 +36,7 @@ class BeyondtrustConnector(BaseConnector):
     """
 
     def __init__(self):
-        super(BeyondtrustConnector, self).__init__()
+        super().__init__()
         self._base_url = None
         self._verify = None
         self._oauth_client_id = None
@@ -79,11 +79,7 @@ class BeyondtrustConnector(BaseConnector):
         """
         req_url = f"/{API_OAUTH2_ENDPOINT}"
 
-        payload = {
-            "grant_type": "client_credentials",
-            "client_id": self._oauth_client_id,
-            "client_secret": self._oauth_client_secret
-        }
+        payload = {"grant_type": "client_credentials", "client_id": self._oauth_client_id, "client_secret": self._oauth_client_secret}
 
         ret_val, resp_json = self._make_rest_call(req_url, action_result, data=payload, method="post")
 
@@ -98,11 +94,7 @@ class BeyondtrustConnector(BaseConnector):
         if response.status_code == 200:
             return RetVal(phantom.APP_SUCCESS, {})
 
-        return RetVal(
-            action_result.set_status(
-                phantom.APP_ERROR, "Empty response and no information in the header"
-            ), None
-        )
+        return RetVal(action_result.set_status(phantom.APP_ERROR, "Empty response and no information in the header"), None)
 
     def _process_html_response(self, response, action_result):
         # An html response, treat it like an error
@@ -111,15 +103,15 @@ class BeyondtrustConnector(BaseConnector):
         try:
             soup = BeautifulSoup(response.text, "html.parser")
             error_text = soup.text
-            split_lines = error_text.split('\n')
+            split_lines = error_text.split("\n")
             split_lines = [x.strip() for x in split_lines if x.strip()]
-            error_text = '\n'.join(split_lines)
+            error_text = "\n".join(split_lines)
         except:
             error_text = "Cannot parse error details"
 
-        message = "Status Code: {0}. Data from server:\n{1}\n".format(status_code, error_text)
+        message = f"Status Code: {status_code}. Data from server:\n{error_text}\n"
 
-        message = message.replace(u'{', '{{').replace(u'}', '}}')
+        message = message.replace("{", "{{").replace("}", "}}")
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
     def _process_json_response(self, r, action_result):
@@ -128,13 +120,9 @@ class BeyondtrustConnector(BaseConnector):
             resp_json = r.json()
         except Exception as e:
             error_message = self._get_error_message_from_exception(e)
-            return RetVal(
-                action_result.set_status(
-                    phantom.APP_ERROR, f"Unable to parse JSON response. Error: {error_message}"
-                ), None
-            )
+            return RetVal(action_result.set_status(phantom.APP_ERROR, f"Unable to parse JSON response. Error: {error_message}"), None)
 
-        response_data = { BT_EP_REST_RESPONSE: resp_json, BT_EP_REST_RESPONSE_HEADERS: r.headers }
+        response_data = {BT_EP_REST_RESPONSE: resp_json, BT_EP_REST_RESPONSE_HEADERS: r.headers}
 
         # Please specify the status codes here
         if 200 <= r.status_code < 399:
@@ -148,7 +136,7 @@ class BeyondtrustConnector(BaseConnector):
             return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
 
         # Processing the error returned in json
-        errors = resp_json.get('errors', None)
+        errors = resp_json.get("errors", None)
         error_message = f"{resp_json.get('message')}. Error(s): {errors}" if errors else f"{resp_json.get('message')}"
         message = BT_RESPONSE_ERROR_MESSAGE.format(status_code=r.status_code, error_text=error_message)
 
@@ -156,22 +144,22 @@ class BeyondtrustConnector(BaseConnector):
 
     def _process_response(self, r, action_result):
         # store the r_text in debug data, it will get dumped in the logs if the action fails
-        if hasattr(action_result, 'add_debug_data'):
-            action_result.add_debug_data({'r_status_code': r.status_code})
-            action_result.add_debug_data({'r_text': r.text})
-            action_result.add_debug_data({'r_headers': r.headers})
+        if hasattr(action_result, "add_debug_data"):
+            action_result.add_debug_data({"r_status_code": r.status_code})
+            action_result.add_debug_data({"r_text": r.text})
+            action_result.add_debug_data({"r_headers": r.headers})
 
         # Process each 'Content-Type' of response separately
 
         # Process a json response
-        if 'json' in r.headers.get('Content-Type', ''):
+        if "json" in r.headers.get("Content-Type", ""):
             return self._process_json_response(r, action_result)
 
         # Process an HTML response, Do this no matter what the api talks.
         # There is a high chance of a PROXY in between phantom and the rest of
         # world, in case of errors, PROXY's return HTML, this function parses
         # the error and adds it to the action_result.
-        if 'html' in r.headers.get('Content-Type', ''):
+        if "html" in r.headers.get("Content-Type", ""):
             return self._process_html_response(r, action_result)
 
         # it's not content-type that is to be parsed, handle an empty response
@@ -179,9 +167,8 @@ class BeyondtrustConnector(BaseConnector):
             return self._process_empty_response(r, action_result)
 
         # everything else is actually an error at this point
-        message = "Can't process response from server. Status Code: {0} Data from server: {1}".format(
-            r.status_code,
-            r.text.replace('{', '{{').replace('}', '}}')
+        message = "Can't process response from server. Status Code: {} Data from server: {}".format(
+            r.status_code, r.text.replace("{", "{{").replace("}", "}}")
         )
 
         return RetVal(action_result.set_status(phantom.APP_ERROR, message), None)
@@ -196,10 +183,7 @@ class BeyondtrustConnector(BaseConnector):
         try:
             request_func = getattr(requests, method)
         except AttributeError:
-            return RetVal(
-                action_result.set_status(phantom.APP_ERROR, "Invalid method: {0}".format(method)),
-                resp_json
-            )
+            return RetVal(action_result.set_status(phantom.APP_ERROR, f"Invalid method: {method}"), resp_json)
 
         # Create a URL to connect to
         url = f"{self._base_url}{endpoint}"
@@ -208,26 +192,16 @@ class BeyondtrustConnector(BaseConnector):
             r = request_func(
                 url,
                 # auth=(username, password),  # basic authentication
-                verify=config.get('verify_server_cert', False),
+                verify=config.get("verify_server_cert", False),
                 **kwargs
             )
         except Exception as e:
             error_message = f"Error Connecting to server. Details: {self._get_error_message_from_exception(e)}"
-            return RetVal(
-                action_result.set_status(phantom.APP_ERROR, error_message), resp_json
-            )
+            return RetVal(action_result.set_status(phantom.APP_ERROR, error_message), resp_json)
 
         return self._process_response(r, action_result)
 
-    def _make_rest_call_helper(
-        self,
-        action_result,
-        endpoint,
-        headers=None,
-        params=None,
-        data=None,
-        method="get"
-    ):
+    def _make_rest_call_helper(self, action_result, endpoint, headers=None, params=None, data=None, method="get"):
         """Function that helps setting REST call to the app.
 
         :param action_result: object of ActionResult class
@@ -250,13 +224,7 @@ class BeyondtrustConnector(BaseConnector):
             if phantom.is_fail(ret_val):
                 return RetVal(action_result.get_status(), None)
 
-        headers.update(
-            {
-                "Authorization": f"Bearer {self._access_token}",
-                "Accept": "application/json",
-                "Content-Type": "application/json"
-            }
-        )
+        headers.update({"Authorization": f"Bearer {self._access_token}", "Accept": "application/json", "Content-Type": "application/json"})
         ret_val, resp_json = self._make_rest_call(endpoint, action_result, method=method, headers=headers, params=params, data=data)
 
         # If token is expired, generate a new token
@@ -336,16 +304,11 @@ class BeyondtrustConnector(BaseConnector):
                     self.save_progress(f"Page {current_page}/{last_page}. Fetched all data for endpoint '{endpoint}'")
                     break
 
-                params.update({
-                    "current_page": int(current_page) + 1
-                })
+                params.update({"current_page": int(current_page) + 1})
                 self.save_progress(f"Page {current_page}/{last_page}. Fetching from next page: {params['current_page']}")
 
             else:
-                next_endpoint = self._next_page(
-                    action_result,
-                    response[BT_EP_REST_RESPONSE_HEADERS].get("Link", "")
-                )
+                next_endpoint = self._next_page(action_result, response[BT_EP_REST_RESPONSE_HEADERS].get("Link", ""))
 
                 if action_result.is_fail():
                     return phantom.APP_ERROR, []
@@ -372,9 +335,7 @@ class BeyondtrustConnector(BaseConnector):
 
         self.save_progress("Connecting to endpoint")
         # make rest call
-        ret_val, response = self._make_rest_call_helper(action_result,
-            API_GET_ALL_ACCOUNTS, params=None, headers=None
-        )
+        ret_val, response = self._make_rest_call_helper(action_result, API_GET_ALL_ACCOUNTS, params=None, headers=None)
 
         if phantom.is_fail(ret_val):
             # the call to the 3rd party device or service failed, action result should contain all the error details
@@ -393,35 +354,33 @@ class BeyondtrustConnector(BaseConnector):
         :param user: Dictionary of the user object
         :param max_inactivity_days: Threshold indicating the max amount of days of inactivity
         """
-        last_auth = user.get('last_authentication')
-        ref_date_str = last_auth if last_auth else user.get('created_at')
+        last_auth = user.get("last_authentication")
+        ref_date_str = last_auth if last_auth else user.get("created_at")
 
         try:
-            ref_date = datetime.fromisoformat(ref_date_str.replace('Z', '+00:00'))
+            ref_date = datetime.fromisoformat(ref_date_str.replace("Z", "+00:00"))
         except ValueError:
-            ref_date = datetime.strptime(ref_date_str, '%Y-%m-%d %H:%M:%S.%f')
+            ref_date = datetime.strptime(ref_date_str, "%Y-%m-%d %H:%M:%S.%f")
 
         ref_date = ref_date.replace(tzinfo=timezone.utc)
         inactivity_days = (datetime.now(timezone.utc) - ref_date).days
         return inactivity_days >= max_inactivity_days
 
     def _handle_list_users(self, param):
-        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        self.save_progress(f"In action handler for: {self.get_action_identifier()}")
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
-        arguments = [ "security_provider_id", "username", "email_address" ]
-        params = { k:v for k,v in param.items() if k in arguments and v is not None }
+        arguments = ["security_provider_id", "username", "email_address"]
+        params = {k: v for k, v in param.items() if k in arguments and v is not None}
 
-        get_inactive = param.get('inactive_only')
-        get_enabled = param.get('enabled_only')
-        max_inactivity = param.get('max_inactive_days', BT_MAX_INACTIVITY_DAYS)
+        get_inactive = param.get("inactive_only")
+        get_enabled = param.get("enabled_only")
+        max_inactivity = param.get("max_inactive_days", BT_MAX_INACTIVITY_DAYS)
 
         # Validity check for inactivity calculation
         if get_inactive == True and max_inactivity <= 0:
             error_msg = f"Invalid parameter 'max_inactive_days': its value must be bigger than 0"
-            return action_result.set_status(
-                phantom.APP_ERROR, error_msg
-            )
+            return action_result.set_status(phantom.APP_ERROR, error_msg)
 
         try:
             # make rest call
@@ -433,24 +392,18 @@ class BeyondtrustConnector(BaseConnector):
 
             # Filter enabled users
             if get_enabled:
-                users = [
-                    user for user in users if bool(user.get('enabled')) is True
-                ]
+                users = [user for user in users if bool(user.get('enabled')) is True]
                 self.debug_print(f"Filtered {len(users)} users out of {tot_users}")
 
             # Filter inactive users
             if get_inactive:
-                users = [
-                    user for user in users if self._is_user_inactive(user, max_inactivity)
-                ]
+                users = [user for user in users if self._is_user_inactive(user, max_inactivity)]
                 self.debug_print(f"Filtered {len(users)} users out of {tot_users}")
 
         except Exception as e:
             error_msg = self._get_error_message_from_exception(e)
             self.debug_print(error_msg)
-            return action_result.set_status(
-                phantom.APP_ERROR, error_msg
-            )
+            return action_result.set_status(phantom.APP_ERROR, error_msg)
 
         for user in users:
             action_result.add_data(user)
@@ -467,16 +420,14 @@ class BeyondtrustConnector(BaseConnector):
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def _handle_get_user_groups(self, param):
-        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        self.save_progress(f"In action handler for: {self.get_action_identifier()}")
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
-        user_id = param.get('user_id')
+        user_id = param.get("user_id")
 
         try:
             # make rest call
-            ret_val, groups = self._make_paginated_call(
-                action_result, API_GET_USER_MEMBERSHIP.format(userid=user_id)
-            )
+            ret_val, groups = self._make_paginated_call(action_result, API_GET_USER_MEMBERSHIP.format(userid=user_id))
 
             if phantom.is_fail(ret_val):
                 return action_result.get_status()
@@ -484,9 +435,7 @@ class BeyondtrustConnector(BaseConnector):
         except Exception as e:
             error_msg = self._get_error_message_from_exception(e)
             self.debug_print(error_msg)
-            return action_result.set_status(
-                phantom.APP_ERROR, error_msg
-            )
+            return action_result.set_status(phantom.APP_ERROR, error_msg)
 
         for group in groups:
             action_result.add_data(group)
@@ -503,22 +452,17 @@ class BeyondtrustConnector(BaseConnector):
         return action_result.set_status(phantom.APP_SUCCESS)
 
     def _handle_disable_user(self, param):
-        self.save_progress("In action handler for: {0}".format(self.get_action_identifier()))
+        self.save_progress(f"In action handler for: {self.get_action_identifier()}")
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
-        user_id = param.get('user_id')
+        user_id = param.get("user_id")
 
-        payload = {
-            "enabled": False
-        }
+        payload = {"enabled": False}
 
         try:
             # make rest call
             ret_val, response = self._make_rest_call_helper(
-                action_result,
-                API_UPDATE_USER.format(userid=user_id),
-                data=json.dumps(payload),
-                method="patch"
+                action_result, API_UPDATE_USER.format(userid=user_id), data=json.dumps(payload), method="patch"
             )
 
             if phantom.is_fail(ret_val):
@@ -527,9 +471,7 @@ class BeyondtrustConnector(BaseConnector):
         except Exception as e:
             error_msg = self._get_error_message_from_exception(e)
             self.debug_print(error_msg)
-            return action_result.set_status(
-                phantom.APP_ERROR, error_msg
-            )
+            return action_result.set_status(phantom.APP_ERROR, error_msg)
 
         action_result.add_data(response.get(BT_EP_REST_RESPONSE))
         summary = action_result.update_summary({})
@@ -545,12 +487,12 @@ class BeyondtrustConnector(BaseConnector):
         config = self.get_config()
 
         # Get configuration parameters
-        self._base_url = config.get('base_url')
-        if self._base_url.endswith('/'):
+        self._base_url = config.get("base_url")
+        if self._base_url.endswith("/"):
             self._base_url = self._base_url[:-1]
 
-        self._oauth_client_id = config.get('oauth_client_id')
-        self._oauth_client_secret = config.get('oauth_client_secret')
+        self._oauth_client_id = config.get("oauth_client_id")
+        self._oauth_client_secret = config.get("oauth_client_secret")
         self._verify = config.get("verify_server_cert", False)
 
         return phantom.APP_SUCCESS

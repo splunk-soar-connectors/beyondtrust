@@ -9,11 +9,17 @@
     "product_name": "PAM",
     "product_version_regex": ".*",
     "publisher": "Splunk",
-    "license": "Copyright (c) 2025 Splunk Inc.",
+    "license": "Copyright (c) 2025-2026 Splunk Inc.",
     "app_version": "1.0.0",
     "latest_tested_versions": [
         "Version 1.0.0, February 2026"
     ],
+    "pip39_dependencies": {
+        "wheel": []
+    },
+    "pip313_dependencies": {
+        "wheel": []
+    },
     "utctime_updated": "2026-02-02T11:15:05.507832Z",
     "package_name": "phantom_beyondtrust",
     "main_module": "beyondtrust_connector.py",
