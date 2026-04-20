@@ -193,7 +193,7 @@ class BeyondtrustConnector(BaseConnector):
                 url,
                 # auth=(username, password),  # basic authentication
                 verify=config.get("verify_server_cert", False),
-                **kwargs
+                **kwargs,
             )
         except Exception as e:
             error_message = f"Error Connecting to server. Details: {self._get_error_message_from_exception(e)}"
@@ -392,7 +392,7 @@ class BeyondtrustConnector(BaseConnector):
 
             # Filter enabled users
             if get_enabled:
-                users = [user for user in users if bool(user.get('enabled')) is True]
+                users = [user for user in users if bool(user.get("enabled")) is True]
                 self.debug_print(f"Filtered {len(users)} users out of {tot_users}")
 
             # Filter inactive users
