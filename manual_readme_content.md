@@ -9,6 +9,7 @@ To use the BeyondTrust API, ensure that the **Enable XML API** option is checked
 BeyondTrust's web APIs use OAuth as the authentication method.
 
 To authenticate to the API:
+
 - Create an API account on the **/login > Management > API Configuration** page
 - The account must have **permission to access the Configuration API**
 
