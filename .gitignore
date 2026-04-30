@@ -18,3 +18,7 @@ build/
 
 # Secrets
 .env
+
+# Python versioning
+.pylintrc
+.python-version
