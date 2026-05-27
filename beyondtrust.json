@@ -6,7 +6,7 @@
     "product_vendor": "BeyondTrust",
     "logo": "logo.svg",
     "logo_dark": "logo_dark.svg",
-    "product_name": "PAM",
+    "product_name": "Beyond Trust PAM",
     "product_version_regex": ".*",
     "publisher": "Splunk",
     "license": "Copyright (c) 2025-2026 Splunk Inc.",
