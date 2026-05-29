@@ -1,9 +1,9 @@
-# beyondtrust
+# BeyondTrust
 
 Publisher: Splunk <br>
 Connector Version: 1.0.0 <br>
 Product Vendor: BeyondTrust <br>
-Product Name: PAM <br>
+Product Name: Beyond Trust PAM <br>
 Minimum Product Version: 6.3.0
 
 This app supports a variety of Identity and Access Management actions on BeyondTrust
@@ -42,7 +42,7 @@ default ports used by the Splunk SOAR Connector.
 
 ### Configuration variables
 
-This table lists the configuration variables required to operate beyondtrust. These variables are specified when configuring a PAM asset in Splunk SOAR.
+This table lists the configuration variables required to operate BeyondTrust. These variables are specified when configuring a Beyond Trust PAM asset in Splunk SOAR.
 
 VARIABLE | REQUIRED | TYPE | DESCRIPTION
 -------- | -------- | ---- | -----------
@@ -151,7 +151,7 @@ summary.total_objects_successful | numeric | | 1 |
 Disable User
 
 Type: **correct** <br>
-Read only: **True**
+Read only: **False**
 
 #### Action Parameters
 
