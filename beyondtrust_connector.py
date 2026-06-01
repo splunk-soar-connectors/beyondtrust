@@ -335,7 +335,7 @@ class BeyondtrustConnector(BaseConnector):
 
         self.save_progress("Connecting to endpoint")
         # make rest call
-        ret_val, response = self._make_rest_call_helper(action_result, API_GET_ALL_ACCOUNTS, params=None, headers=None)
+        ret_val, _response = self._make_rest_call_helper(action_result, API_GET_ALL_ACCOUNTS, params=None, headers=None)
 
         if phantom.is_fail(ret_val):
             # the call to the 3rd party device or service failed, action result should contain all the error details
