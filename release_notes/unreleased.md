@@ -1,6 +1,1 @@
 **Unreleased**
-* Initial Beyond Trust connector release with the following actions:
-  * test connectivity
-  * list users
-  * get user groups
-  * disable user

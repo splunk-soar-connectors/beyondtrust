@@ -17,7 +17,7 @@
     "pip313_dependencies": {
         "wheel": []
     },
-    "utctime_updated": "2026-02-02T11:15:05.507832Z",
+    "utctime_updated": "2026-06-02T12:00:20.334771Z",
     "package_name": "phantom_beyondtrust",
     "main_module": "beyondtrust_connector.py",
     "app_config_render": "default",
