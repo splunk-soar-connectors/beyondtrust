@@ -1,6 +1,6 @@
 # BeyondTrust
 
-Publisher: Splunk <br>
+Publisher: SOAR Community <br>
 Connector Version: 1.0.0 <br>
 Product Vendor: BeyondTrust <br>
 Product Name: Beyond Trust PAM <br>
