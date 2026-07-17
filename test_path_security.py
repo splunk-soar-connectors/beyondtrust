@@ -1,3 +1,16 @@
+# Copyright (c) 2026 Splunk Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 from pathlib import Path
 
 
@@ -5,5 +18,5 @@ CONNECTOR_SOURCE = Path("beyondtrust_connector.py").read_text()
 
 
 def test_user_ids_are_coerced_to_integers_before_path_use():
-    assert CONNECTOR_SOURCE.count("_parse_user_id(param.get(\"user_id\"), action_result)") == 2
+    assert CONNECTOR_SOURCE.count('_parse_user_id(param.get("user_id"), action_result)') == 2
     assert "User ID must be an integer" in CONNECTOR_SOURCE
