@@ -30,6 +30,15 @@ class RetVal(tuple):
         return tuple.__new__(RetVal, (val1, val2))
 
 
+def _parse_user_id(value, action_result):
+    """Return a validated integer BeyondTrust user identifier."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        action_result.set_status(phantom.APP_ERROR, "User ID must be an integer")
+        return None
+
+
 class BeyondtrustConnector(BaseConnector):
     """
     Beyondtrust connector class that serves as a starting point for new connectors.
@@ -176,8 +185,6 @@ class BeyondtrustConnector(BaseConnector):
     def _make_rest_call(self, endpoint, action_result, method="get", **kwargs):
         # **kwargs can be any additional parameters that requests.request accepts
 
-        config = self.get_config()
-
         resp_json = None
 
         try:
@@ -192,7 +199,7 @@ class BeyondtrustConnector(BaseConnector):
             r = request_func(
                 url,
                 # auth=(username, password),  # basic authentication
-                verify=config.get("verify_server_cert", False),
+                verify=self._verify,
                 **kwargs,
             )
         except Exception as e:
@@ -423,7 +430,9 @@ class BeyondtrustConnector(BaseConnector):
         self.save_progress(f"In action handler for: {self.get_action_identifier()}")
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
-        user_id = param.get("user_id")
+        user_id = _parse_user_id(param.get("user_id"), action_result)
+        if user_id is None:
+            return action_result.get_status()
 
         try:
             # make rest call
@@ -455,7 +464,9 @@ class BeyondtrustConnector(BaseConnector):
         self.save_progress(f"In action handler for: {self.get_action_identifier()}")
         # Add an action result object to self (BaseConnector) to represent the action for this param
         action_result = self.add_action_result(ActionResult(dict(param)))
-        user_id = param.get("user_id")
+        user_id = _parse_user_id(param.get("user_id"), action_result)
+        if user_id is None:
+            return action_result.get_status()
 
         payload = {"enabled": False}
 
@@ -493,7 +504,7 @@ class BeyondtrustConnector(BaseConnector):
 
         self._oauth_client_id = config.get("oauth_client_id")
         self._oauth_client_secret = config.get("oauth_client_secret")
-        self._verify = config.get("verify_server_cert", False)
+        self._verify = config.get("verify_server_cert", True)
 
         return phantom.APP_SUCCESS
 

@@ -15,6 +15,10 @@ To authenticate to the API:
 
 API requests require a token to first be created and then be submitted with each API request as HTTP authorization header.
 
+TLS certificate verification is enabled by default and should remain enabled in production. If
+the BeyondTrust server uses a private certificate authority, configure the asset environment with
+the appropriate CA bundle instead of disabling verification.
+
 #### Rate Limits
 
 Requests are limited to 20 per second and 15,000 per hour.
