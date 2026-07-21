@@ -1,7 +1,7 @@
 # BeyondTrust
 
 Publisher: SOAR Community <br>
-Connector Version: 1.0.0 <br>
+Connector Version: 1.0.1 <br>
 Product Vendor: BeyondTrust <br>
 Product Name: Beyond Trust PAM <br>
 Minimum Product Version: 6.3.0
