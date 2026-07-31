@@ -51,7 +51,7 @@ This table lists the configuration variables required to operate BeyondTrust. Th
 VARIABLE | REQUIRED | TYPE | DESCRIPTION
 -------- | -------- | ---- | -----------
 **base_url** | required | string | BeyondTrust PAM Server site URL (e.g. https://access.example.com) |
-**verify_server_cert** | optional | boolean | Verify server certificate |
+**verify_server_cert** | optional | boolean | Verify the BeyondTrust server certificate. Disabling verification permits interception of OAuth client credentials; configure a private CA bundle instead of disabling verification. |
 **oauth_client_id** | required | string | OAuth client ID used to authenticate |
 **oauth_client_secret** | required | password | OAuth client secret used to authenticate |
 
