@@ -38,7 +38,7 @@
             "order": 0
         },
         "verify_server_cert": {
-            "description": "Verify server certificate",
+            "description": "Verify the BeyondTrust server certificate. Disabling verification permits interception of OAuth client credentials; configure a private CA bundle instead of disabling verification.",
             "data_type": "boolean",
             "default": true,
             "order": 1
